@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dettaglio Meta</title>
+  <link rel="stylesheet" href="/Css/home.css">
+</head>
+<body>
+   <h1 style="font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;font-size: 40px"><%= meta.nome %></h1>
+  <div class="meta">
+    <p style="font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; font-size: 25px;width: 200px;">
+      <%= meta.descrizione %> 
+      <br>
+      <br>
+      <br>
+      <strong>Prezzo: €<%= meta.prezzo %></strong>
+      
+
+    </p>
+    <img src="<%= meta.foto_url %>" alt="">
+
+    <!-- Form per andare alla pagina di prenotazione -->
+    <form action="/prenota/<%= meta.id %>" method="get">
+      <button type="submit">Prenota ora</button>
+    </form>
+  </div>
+</body>
+<style>
+  img {
+    height: 300px;
+    width: 600px;
+  }
+  .meta{
+    margin-left: 100px;
+  }
+</style>
+</html>

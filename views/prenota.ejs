@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenota</title>
+</head>
+<body>
+    <h1>Prenotazione per <%=meta.nome%></h1>
+    <p style="font-size: 30px;text-align: center;"><strong>Posti disponibili:</strong> <strong><%= meta.posti_disponibili %></strong></p>
+    <form action="/prenota/<%=meta.id%>" method="post">
+        <label for="num_persone">Numero persone:</label>
+        <input type="number" name="num_persone" id="num_persone" min="1" max="<%= meta.posti_disponibili %>" required>
+        <button type="submit">Conferma prenotazione</button>
+    </form>
+</body>
+<style>
+    body{
+    background-color: rgb(220, 175, 91);
+    }
+    h1{
+        font-size: 40px;
+        text-align: center;
+    }
+    form{
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 20px;
+        width: 300px;
+        height: 200px;
+        margin-top: 200px;
+        background-color: rgb(212, 208, 208);
+    }
+    input{
+        margin-top: 10px;
+    }
+    button{
+        margin-left: 100px;
+        margin-top: 10px;
+        background-color: rgb(85, 199, 85);
+        border: rgb(33, 4, 4) solid 1px;
+        border-radius: 2px;
+        font-size: 14px;
+      
+    }
+    button:hover{
+        cursor:pointer
+    }
+</style>
+</html>

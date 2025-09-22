@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutte le mete</title>
+  <link rel="stylesheet" href="Css/home.css">
+</head>
+<body>
+  <div id="nav">
+    <a href="/login">LOGIN</a>
+    <a href="/logout">LOGOUT</a>
+    <a href="/profilo">PROFILO</a>
+    
+  </div>
+  <br>
+  <br>
+  <hr>
+    <div class="citta">
+      
+        <% mete.forEach(meta=>{%>
+      <a href="/meta/<%=meta.id %>">
+          <strong><%=meta.nome %> - Posti disponibili:<%=meta.posti_disponibili%></strong>
+          <br>
+          <img src="<%=meta.foto_url %>" alt="">
+          <br>
+      </a>
+          <hr>
+     
+        <%})%>
+     
+    </div>
+</body>
+</html>

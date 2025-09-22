@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/Css/home.css">
+</head>
+<body>
+    <% if(error){%>
+        <p><%=error%></p>
+    <%}%>
+    <h1 >LOGIN</h1>
+    <form action="/login" method="post">
+        <label for="">Username</label>
+        <input type="text" name="username" required>
+
+        <label for="">Password</label>
+        <input type="text" name="password" required>
+        <br>
+        <button type="submit">Login</button>
+        
+    </form>
+</body>
+
+<style>
+    h1{
+        font-size: 40px;
+        text-align: center;
+    }
+    form{
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 20px;
+        width: 300px;
+        height: 200px;
+        margin-top: 200px;
+        background-color: rgb(212, 208, 208);
+    }
+    input{
+        margin-top: 10px;
+    }
+    button{
+        margin-left: 100px;
+        margin-top: 10px;
+    }
+</style>
+</html>

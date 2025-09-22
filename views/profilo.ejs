@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROFILO</title>
+</head>
+<body>
+    <div id="nav">
+        <a href="/login">LOGIN</a>
+        <a href="/logout">LOGOUT</a>
+        <a href="/">HOME</a>
+    
+    </div>
+    <h1>Bnevenuto <%=user.nome%> <%=user.cognome%></h1>
+
+    <h2>Le tue prenotazioni:</h2>
+    <% if(prenotazioni.length ===0){%>
+        <p>Non ci sono prenotazioni</p>
+    <%}else{%>
+         <% prenotazioni.forEach(prenotazione => { %>
+            <div id="container">
+                <p><strong>Meta:</strong><%= prenotazione.nome %></p>
+                <p><strong>Numero persone: </strong><%= prenotazione.num_persone %></p>
+                <p><strong>Data:</strong><%= prenotazione.data_prenotazione %></p>
+                <p><strong>Prezzo: €</strong><%= prenotazione.prezzo %></p>
+
+                <a href="/cancella/<%=prenotazione.id%>">Cancella prenotazione</a>
+            </div>
+
+        <% }) %>
+    <%}%>
+        
+</body>
+<style>
+    h1{
+        text-align: center;
+    }
+    #container{
+        border: solid 1px black;
+        background-color: white;
+        text-align: center;
+        font-size: 20px;
+    }
+    body{
+    background-color: rgb(220, 175, 91);
+    }
+    #container a{
+        font-size: 20px;
+        text-decoration: none;
+        color: white;
+        width: 100px;
+        background-color: red;
+    }
+    a:hover{
+        text-decoration: underline;
+    }
+    #nav{
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-left: auto;
+    
+}
+    #nav a{
+    font-size: 25px;
+    color: white;
+    }
+
+</style>
+</html>
