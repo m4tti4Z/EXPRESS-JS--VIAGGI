@@ -15,20 +15,28 @@
     <h1>Bnevenuto <%=user.nome%> <%=user.cognome%></h1>
 
     <h2>Le tue prenotazioni:</h2>
-    <% if(prenotazioni.length ===0){%>
+    <%if(prenotazioni.length ===0){%>
         <p>Non ci sono prenotazioni</p>
     <%}else{%>
-         <% prenotazioni.forEach(prenotazione => { %>
-            <div id="container">
-                <p><strong>Meta:</strong><%= prenotazione.nome %></p>
-                <p><strong>Numero persone: </strong><%= prenotazione.num_persone %></p>
-                <p><strong>Data:</strong><%= prenotazione.data_prenotazione %></p>
-                <p><strong>Prezzo: €</strong><%= prenotazione.prezzo %></p>
+        <table border="1" cellPadding="8" cellSpacing="0">
+            <tr>
+                <th>Meta</th>
+                <th>Numero persone</th>
+                <th>Prezzo</th>
+                <th>Data prenotazione</th>
+                <th>Cancella</th>
+            </tr>
 
-                <a href="/cancella/<%=prenotazione.id%>">Cancella prenotazione</a>
-            </div>
-
-        <% }) %>
+            <%prenotazioni.forEach(p=>{%>
+                <tr>
+                    <td><%=p.nome%></td>
+                    <td><%=p.num_persone%></td>
+                    <td>€ <%=p.prezzo%></td>
+                    <td><%=p.data_prenotazione%></td>
+                    <td><a href="/cancella/<%=p.id%>">Cancella prenotazione</a></td>
+                </tr>
+            <%})%>
+        </table>
     <%}%>
         
 </body>

@@ -11,24 +11,27 @@
     <a href="/login">LOGIN</a>
     <a href="/logout">LOGOUT</a>
     <a href="/profilo">PROFILO</a>
-    
+
+      <%if(utente){%>
+        <p id="ciao"><strong>Ciao <%=utente.nome%> <%=utente.cognome%></strong></p>
+      <%}%>
+      <form action="/ricerca" method="get">
+              CERCA CITTA<input type="search" name="ricerca" placeholder="cerca una città" >
+              <button type="submit">CERCA</button>
+      </form>
+
+      
   </div>
-  <br>
-  <br>
   <hr>
     <div class="citta">
       
-        <% mete.forEach(meta=>{%>
-      <a href="/meta/<%=meta.id %>">
-          <strong><%=meta.nome %> - Posti disponibili:<%=meta.posti_disponibili%></strong>
-          <br>
-          <img src="<%=meta.foto_url %>" alt="">
-          <br>
-      </a>
-          <hr>
-     
-        <%})%>
-     
+      <%mete.forEach(meta=>{%>
+        <a href="/meta/<%=meta.id%>">
+          <p><strong><%=meta.nome%></strong></p>
+          <p>Posti disponibili: <strong><%=meta.posti_disponibili%></strong></p>
+          <img src="<%=meta.foto_url%>" alt="">
+        </a>
+      <%})%>
     </div>
 </body>
 </html>

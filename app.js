@@ -16,11 +16,10 @@ const db = mysql.createConnection({
   password: ''
 });
 app.use(session({
-  secret: 'segreto_super_sicuro', // chiave segreta per la sessione
-  resave: false,
-  saveUninitialized: false
-}));
-
+    secret:'super_secret',
+    saveUninitialized:false,
+    resave:false
+}))
 db.connect((err) => {
   if (err) {
     console.error('Errore di connessione al database:', err);
@@ -35,110 +34,88 @@ const ipAddress = '127.0.0.1'
 
 
 
-app.get('/',(req,res)=>{
-    const queryMete =`SELECT  
-    nome,
+app.get(['/','/home'],(req,res)=>{
+    const sql = `SELECT 
+    mete.nome,
     mete.id,
     mete.foto_url,
-    posti_totali-COALESCE(SUM(num_persone),0) AS posti_disponibili
+    mete.posti_totali -COALESCE(SUM(prenotazioni.num_persone),0) AS posti_disponibili
     FROM mete
-    LEFT JOIN prenotazioni ON mete.id = prenotazioni.id_meta
-    GROUP BY mete.id`;
-
-    db.query(queryMete,(err,results)=>{
-        if(err) throw err;
-
-        res.render('home',{mete:results});
-    })
-});
-
-
-app.get('/meta/:id_meta',(req,res)=>{
-    const id = req.params.id_meta;
-    const sql = `SELECT 
-    nome,
-    mete.id,
-    posti_totali - COALESCE(SUM(prenotazioni.num_persone),0) AS posti_disponibili,
-    foto_url,
-    prezzo,
-    descrizione
-    FROM mete
-    LEFT JOIN prenotazioni ON mete.id = prenotazioni.id_meta
-    WHERE mete.id = ?
+    LEFT JOIN prenotazioni ON prenotazioni.id_meta = mete.id
     GROUP BY mete.id
     `;
+    
 
-    db.query(sql,[id],(err,results)=>{
+    db.query(sql,(err,results)=>{
         if(err) throw err;
-        if(results.length ===0) return  res.send("Meta non trovata");
-       console.log("meta che passo alla view:", results[0]); // <<< LOG QUI
-        res.render('dettaglio',{meta:results[0]});
-       
-
+        res.render('home',{mete:results,utente:req.session.user});
     })
+});
+
+app.get('/ricerca',(req,res)=>{
+    const citta = req.query.ricerca;
+    const sql = `SELECT 
+    mete.id,
+    mete.nome,
+    mete.foto_url,
+    mete.posti_totali -COALESCE(SUM(prenotazioni.num_persone),0) AS posti_disponibili
+    FROM mete 
+    LEFT JOIN prenotazioni ON prenotazioni.id_meta = mete.id
+    WHERE mete.nome LIKE ?
+    GROUP BY mete.id
+    `
+    db.query(sql,[`%${citta}%`],(err,results)=>{
+        if(err) throw err;
+        res.render('home',{mete:results,utente:req.session.user});
+    })
+
 })
-app.get('/prenota/:id_meta', (req, res) => {
-    if(!req.session.utente) return res.redirect('/login');
+app.get('/meta/:id_meta',(req,res)=>{
     const id_meta = req.params.id_meta;
+    const sql = `SELECT 
+    nome,
+    descrizione,
+    foto_url,
+    mete.id,
+    prezzo,
+    posti_totali - COALESCE(SUM(prenotazioni.num_persone),0) AS posti_disponibili
+    FROM mete
+    LEFT JOIN prenotazioni ON prenotazioni.id_meta = mete.id
+    WHERE mete.id = ?`;
 
-    const sql = `
-      SELECT 
-      mete.id, 
-      mete.nome, 
-      mete.prezzo,
-      (mete.posti_totali - COALESCE(SUM(prenotazioni.num_persone),0)) AS posti_disponibili
-      FROM mete
-      LEFT JOIN prenotazioni ON mete.id = prenotazioni.id_meta
-      WHERE mete.id = ?
-      GROUP BY mete.id
-    `;
-    db.query(sql, [id_meta], (err, results) => {
-        if (err) throw err;
-        if (results.length === 0) return res.send("Meta non trovata");
-        res.render('prenota', { meta: results[0], user: req.session.utente });
-    });
-});
-
-app.get('/login',(req,res)=>{
-    res.render('login',{error:null});
-})
-
-app.post('/login',(req,res)=>{
-    const {username,password} = req.body;
-
-    const sql = 'SELECT* FROM utenti WHERE username = ? AND password = SHA2(?,256)';
-
-    db.query(sql,[username,password],(err,results)=>{
+    db.query(sql,[id_meta],(err,results)=>{
         if(err) throw err;
 
-        if(results.length ===0) return res.send("Login fallito.Controllare le credenziali");
+        res.render('dettaglio',{meta:results[0]});
+    })
+});
+app.get('/prenota/:id_meta',(req,res)=>{
+    if(!req.session.user) return res.redirect('/login');
+    const id_meta = req.params.id_meta;
+    const sql = `SELECT 
+    mete.nome,
+    mete.prezzo,
+    mete.foto_url,
+    mete.id,
+    mete.posti_totali-COALESCE(SUM(prenotazioni.num_persone),0) AS posti_disponibili
+    FROM mete
+    LEFT JOIN prenotazioni ON prenotazioni.id_meta = mete.id
+    WHERE mete.id =?`;
 
-        req.session.utente = results[0];
+    db.query(sql,[id_meta],(err,results)=>{
+        if(err) throw err;
 
-        res.redirect('/');
-        console.log(req.session.utente);
-
-    });
-
-})
-
-app.get("/logout",(req,res)=>{
-    req.session.destroy(()=>{
-        res.redirect('/login');
+        res.render('prenota',{meta:results[0],utente:req.session.user});
     })
 })
-
-app.listen(portNumber, ipAddress, () => {
-  console.log(`Server avviato su http://${ipAddress}:${portNumber}/`);
-});
 
 app.post('/prenota/:id_meta',(req,res)=>{
     const num_persone = req.body.num_persone;
     const id_meta = req.params.id_meta;
     const sql = `INSERT INTO prenotazioni(id_utente,id_meta,data_prenotazione,num_persone)
-    VALUES(?,?,CURDATE(),?)`;
+    VALUES(?,?,NOW(),?)`;
 
-    db.query(sql,[req.session.utente.id,id_meta,num_persone],(err,results)=>{
+    db.query(sql,[req.session.user.id,id_meta,num_persone],(err,results)=>{
         if(err)throw err;
 
         res.send("Prenotazione avvenuta con successo");
@@ -146,9 +123,43 @@ app.post('/prenota/:id_meta',(req,res)=>{
     })
 })
 
+app.get('/login',(req,res)=>{
+    res.render('login',{error:null});
+})
+app.post('/login',(req,res)=>{
+    const {username,password } = req.body;
+
+    const sql =`SELECT *FROM utenti WHERE username =? AND password = SHA2(?,256)`;
+
+    db.query(sql,[username,password],(err,results)=>{
+        if(err) throw err;
+        if(results.length ===0) return res.send("Login fallito");
+
+        req.session.user = results[0];
+        console.log(req.session.user.id,req.session.user.nome,req.session.user.cognome
+
+        )
+
+        res.redirect('/');
+    })
+})
+
+app.get('/logout',(req,res)=>{
+    req.session.destroy((err)=>{
+        if(err ) return res.send("Errore durante il logout");
+
+        res.redirect('/home');
+    })
+})
+app.listen(portNumber, ipAddress, () => {
+  console.log(`Server avviato su http://${ipAddress}:${portNumber}/`);
+});
+
+
+
 app.get('/profilo',(req,res)=>{
-    if(!req.session.utente) return res.redirect('/login');
-    const id_utente = req.session.utente.id;
+    if(!req.session.user) return res.redirect('/login');
+    const id_utente = req.session.user.id;
 
     const sql = `SELECT
     prenotazioni.id,
@@ -164,7 +175,7 @@ app.get('/profilo',(req,res)=>{
     db.query(sql,[id_utente],(err,results)=>{
         if(err) throw err;
         console.log(results);
-        res.render('profilo',{prenotazioni:results,user:req.session.utente});
+        res.render('profilo',{prenotazioni:results,user:req.session.user});
     })
 })
 
@@ -175,8 +186,7 @@ app.get('/cancella/:id_prenotazione',(req,res)=>{
 
     db.query(sql,[id_prenotazione],(err,results)=>{
         if(err) throw err;
-
-        res.send("Cancellazione avvenuta con successo!");
+        res.redirect('/profilo')
     })
 })
 
